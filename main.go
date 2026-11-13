@@ -1,0 +1,223 @@
+package main
+
+import (
+	"flag"
+	"log"
+
+	"golang.org/x/xerrors"
+
+	"github.com/aquasecurity/vuln-list-update/alma"
+	"github.com/aquasecurity/vuln-list-update/alpine"
+	alpineunfixed "github.com/aquasecurity/vuln-list-update/alpine-unfixed"
+	"github.com/aquasecurity/vuln-list-update/amazon"
+	arch_linux "github.com/aquasecurity/vuln-list-update/arch"
+	"github.com/aquasecurity/vuln-list-update/bottlerocket"
+	"github.com/aquasecurity/vuln-list-update/chainguard"
+	"github.com/aquasecurity/vuln-list-update/cwe"
+	"github.com/aquasecurity/vuln-list-update/debian/tracker"
+	"github.com/aquasecurity/vuln-list-update/echo"
+	"github.com/aquasecurity/vuln-list-update/eoldates"
+	"github.com/aquasecurity/vuln-list-update/glad"
+	"github.com/aquasecurity/vuln-list-update/kevc"
+	"github.com/aquasecurity/vuln-list-update/mariner"
+	"github.com/aquasecurity/vuln-list-update/minimos"
+	"github.com/aquasecurity/vuln-list-update/nvd"
+	"github.com/aquasecurity/vuln-list-update/openeuler"
+	oracleoval "github.com/aquasecurity/vuln-list-update/oracle/oval"
+	"github.com/aquasecurity/vuln-list-update/osvdev"
+	"github.com/aquasecurity/vuln-list-update/photon"
+	redhatcsafvex "github.com/aquasecurity/vuln-list-update/redhat/csaf"
+	redhatoval "github.com/aquasecurity/vuln-list-update/redhat/oval"
+	"github.com/aquasecurity/vuln-list-update/redhat/securitydataapi"
+	"github.com/aquasecurity/vuln-list-update/rocky"
+	"github.com/aquasecurity/vuln-list-update/rootio"
+	"github.com/aquasecurity/vuln-list-update/seal"
+	susecsaf "github.com/aquasecurity/vuln-list-update/suse/csaf"
+	susecvrf "github.com/aquasecurity/vuln-list-update/suse/cvrf"
+	"github.com/aquasecurity/vuln-list-update/ubuntu"
+	"github.com/aquasecurity/vuln-list-update/utils"
+	"github.com/aquasecurity/vuln-list-update/wolfi"
+)
+
+var (
+	target = flag.String("target", "", "update target (nvd, alpine, alpine-unfixed, redhat, redhat-oval, "+
+		"redhat-csaf-vex, debian, ubuntu, amazon, bottlerocket, oracle-oval, suse-cvrf, suse-csaf, photon, arch-linux, glad, cwe, osvdev, mariner, kevc, wolfi, "+
+		"chainguard, azure, openeuler, echo, echo-osv, minimos, eoldates, rootio)")
+	vulnListDir  = flag.String("vuln-list-dir", "", "vuln-list dir")
+	targetUri    = flag.String("target-uri", "", "alternative repository URI (only glad)")
+	targetBranch = flag.String("target-branch", "", "alternative repository branch (only glad)")
+)
+
+func main() {
+	if err := run(); err != nil {
+		log.Fatal(err)
+	}
+}
+
+func run() error {
+	flag.Parse()
+
+	if *vulnListDir != "" {
+		utils.SetVulnListDir(*vulnListDir)
+	}
+
+	switch *target {
+	case "nvd":
+		u := nvd.NewUpdater()
+		if err := u.Update(); err != nil {
+			return xerrors.Errorf("NVD update error: %w", err)
+		}
+	case "redhat":
+		if err := securitydataapi.Update(); err != nil {
+			return xerrors.Errorf("Red Hat Security Data API update error: %w", err)
+		}
+	case "redhat-oval":
+		rc := redhatoval.NewConfig()
+		if err := rc.Update(); err != nil {
+			return xerrors.Errorf("Red Hat OVALv2 update error: %w", err)
+		}
+	case "redhat-csaf-vex":
+		rc := redhatcsafvex.NewConfig()
+		if err := rc.Update(); err != nil {
+			return xerrors.Errorf("Red Hat CSAF VEX update error: %w", err)
+		}
+	case "debian":
+		dc := tracker.NewClient()
+		if err := dc.Update(); err != nil {
+			return xerrors.Errorf("Debian update error: %w", err)
+		}
+	case "ubuntu":
+		if err := ubuntu.Update(); err != nil {
+			return xerrors.Errorf("Ubuntu update error: %w", err)
+		}
+	case "alpine":
+		au := alpine.NewUpdater()
+		if err := au.Update(); err != nil {
+			return xerrors.Errorf("Alpine update error: %w", err)
+		}
+	case "alpine-unfixed":
+		au := alpineunfixed.NewUpdater()
+		if err := au.Update(); err != nil {
+			return xerrors.Errorf("Alpine Secfixes Tracker update error: %w", err)
+		}
+	case "amazon":
+		ac := amazon.NewConfig()
+		if err := ac.Update(); err != nil {
+			return xerrors.Errorf("Amazon Linux update error: %w", err)
+		}
+	case "bottlerocket":
+		bc := bottlerocket.NewConfig()
+		if err := bc.Update(); err != nil {
+			return xerrors.Errorf("Bottlerocket update error: %w", err)
+		}
+	case "oracle-oval":
+		oc := oracleoval.NewConfig()
+		if err := oc.Update(); err != nil {
+			return xerrors.Errorf("Oracle OVAL update error: %w", err)
+		}
+	case "suse-cvrf":
+		sc := susecvrf.NewConfig()
+		if err := sc.Update(); err != nil {
+			return xerrors.Errorf("SUSE CVRF update error: %w", err)
+		}
+	case "suse-csaf":
+		sc := susecsaf.NewConfig()
+		if err := sc.Update(); err != nil {
+			return xerrors.Errorf("SUSE CSAF update error: %w", err)
+		}
+	case "photon":
+		pc := photon.NewConfig()
+		if err := pc.Update(); err != nil {
+			return xerrors.Errorf("Photon update error: %w", err)
+		}
+	case "glad":
+		gu := glad.NewUpdater(*targetUri, *targetBranch)
+		if err := gu.Update(); err != nil {
+			return xerrors.Errorf("GitLab Advisory Database update error: %w", err)
+		}
+	case "cwe":
+		c := cwe.NewCWEConfig()
+		if err := c.Update(); err != nil {
+			return xerrors.Errorf("CWE update error: %w", err)
+		}
+	case "arch-linux":
+		al := arch_linux.NewArchLinux()
+		if err := al.Update(); err != nil {
+			return xerrors.Errorf("Arch Linux update error: %w", err)
+		}
+	case "alma":
+		ac := alma.NewConfig()
+		if err := ac.Update(); err != nil {
+			return xerrors.Errorf("AlmaLinux update error: %w", err)
+		}
+	case "rocky":
+		rc := rocky.NewConfig()
+		if err := rc.Update(); err != nil {
+			return xerrors.Errorf("Rocky Linux update error: %w", err)
+		}
+	case "osvdev":
+		p := osvdev.NewDatabase()
+		if err := p.Update(); err != nil {
+			return xerrors.Errorf("OSV update error: %w", err)
+		}
+	case "azure", "mariner":
+		src := mariner.NewConfig()
+		if err := src.Update(); err != nil {
+			return xerrors.Errorf("CBL-Mariner Vulnerability Data update error: %w", err)
+		}
+	case "kevc":
+		src := kevc.NewConfig()
+		if err := src.Update(); err != nil {
+			return xerrors.Errorf("Known Exploited Vulnerability Catalog update error: %w", err)
+		}
+	case "wolfi":
+		wu := wolfi.NewUpdater()
+		if err := wu.Update(); err != nil {
+			return xerrors.Errorf("Wolfi update error: %w", err)
+		}
+	case "chainguard":
+		cu := chainguard.NewUpdater()
+		if err := cu.Update(); err != nil {
+			return xerrors.Errorf("Chainguard update error: %w", err)
+		}
+	case "openeuler":
+		ec := openeuler.NewConfig()
+		if err := ec.Update(); err != nil {
+			return xerrors.Errorf("openEuler CVE update error: %w", err)
+		}
+	case "echo":
+		ec := echo.NewUpdater()
+		if err := ec.Update(); err != nil {
+			return xerrors.Errorf("Echo CVE update error: %w", err)
+		}
+	case "echo-osv":
+		eu := echo.NewOSVUpdater()
+		if err := eu.Update(); err != nil {
+			return xerrors.Errorf("Echo OSV update error: %w", err)
+		}
+	case "minimos":
+		mu := minimos.NewUpdater()
+		if err := mu.Update(); err != nil {
+			return xerrors.Errorf("MinimOS update error: %w", err)
+		}
+	case "eoldates":
+		ec := eoldates.NewConfig()
+		if err := ec.Update(); err != nil {
+			return xerrors.Errorf("eolDates update error: %w", err)
+		}
+	case "rootio":
+		ru := rootio.NewUpdater()
+		if err := ru.Update(); err != nil {
+			return xerrors.Errorf("Root.io update error: %w", err)
+		}
+	case "seal":
+		su := seal.NewSeal()
+		if err := su.Update(); err != nil {
+			return xerrors.Errorf("Seal Security update error: %w", err)
+		}
+	default:
+		return xerrors.New("unknown target")
+	}
+
+	return nil
+}

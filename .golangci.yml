@@ -1,0 +1,52 @@
+version: "2"
+run:
+  go: "1.21"
+linters:
+  enable:
+    - bodyclose
+    - gomodguard
+    - staticcheck
+  disable:
+    - errcheck
+    - ineffassign
+  settings:
+    gomodguard:
+      blocked:
+        modules:
+          - github.com/hashicorp/go-version:
+              recommendations:
+                - github.com/aquasecurity/go-version
+              reason: '`aquasecurity/go-version` is degisned for our use-cases'
+          - github.com/Masterminds/semver:
+              recommendations:
+                - github.com/aquasecurity/go-version
+              reason: '`aquasecurity/go-version` is degisned for our use-cases'
+  exclusions:
+    generated: lax
+    presets:
+      - comments
+      - common-false-positives
+      - legacy
+      - std-error-handling
+    paths:
+      - third_party$
+      - builtin$
+      - examples$
+formatters:
+  enable:
+    - gci
+    - gofmt
+  settings:
+    gci:
+      sections:
+        - standard
+        - default
+        - prefix(github.com/aquasecurity/)
+        - blank
+        - dot
+  exclusions:
+    generated: lax
+    paths:
+      - third_party$
+      - builtin$
+      - examples$
