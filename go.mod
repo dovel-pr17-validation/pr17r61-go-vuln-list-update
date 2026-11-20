@@ -1,12 +1,12 @@
 module github.com/aquasecurity/vuln-list-update
 
-go 1.24.0
+go 1.26.0
 
 require (
 	github.com/PuerkitoBio/goquery v1.10.3
 	github.com/araddon/dateparse v0.0.0-20190426192744-0d74ffceef83
 	github.com/cheggaaa/pb v2.0.7+incompatible
-	github.com/cheggaaa/pb/v3 v3.1.7
+	github.com/cheggaaa/pb/v3 v3.3.0
 	github.com/gocsaf/csaf/v3 v3.3.0
 	github.com/hashicorp/go-getter v1.7.9
 	github.com/klauspost/compress v1.17.11
@@ -41,12 +41,13 @@ require (
 	github.com/bgentry/go-netrc v0.0.0-20140422174119-9fd32a8b3d3d // indirect
 	github.com/census-instrumentation/opencensus-proto v0.4.1 // indirect
 	github.com/cespare/xxhash/v2 v2.3.0 // indirect
+	github.com/clipperhouse/uax29/v2 v2.2.0 // indirect
 	github.com/cncf/xds/go v0.0.0-20240905190251-b4127c9b8d78 // indirect
 	github.com/davecgh/go-spew v1.1.1 // indirect
 	github.com/elazarl/goproxy v1.2.1 // indirect
 	github.com/envoyproxy/go-control-plane v0.13.1 // indirect
 	github.com/envoyproxy/protoc-gen-validate v1.1.0 // indirect
-	github.com/fatih/color v1.18.0 // indirect
+	github.com/fatih/color v1.19.0 // indirect
 	github.com/felixge/httpsnoop v1.0.4 // indirect
 	github.com/go-logr/logr v1.4.2 // indirect
 	github.com/go-logr/stdr v1.2.2 // indirect
@@ -59,14 +60,13 @@ require (
 	github.com/hashicorp/go-safetemp v1.0.0 // indirect
 	github.com/hashicorp/go-version v1.6.0 // indirect
 	github.com/jmespath/go-jmespath v0.4.0 // indirect
-	github.com/mattn/go-colorable v0.1.14 // indirect
-	github.com/mattn/go-isatty v0.0.20 // indirect
-	github.com/mattn/go-runewidth v0.0.16 // indirect
+	github.com/mattn/go-colorable v0.1.16 // indirect
+	github.com/mattn/go-isatty v0.0.24 // indirect
+	github.com/mattn/go-runewidth v0.0.31 // indirect
 	github.com/mitchellh/go-homedir v1.1.0 // indirect
 	github.com/pkg/errors v0.9.1 // indirect
 	github.com/planetscale/vtprotobuf v0.6.1-0.20240319094008-0393e58bdf10 // indirect
 	github.com/pmezard/go-difflib v1.0.0 // indirect
-	github.com/rivo/uniseg v0.4.7 // indirect
 	github.com/santhosh-tekuri/jsonschema/v6 v6.0.2 // indirect
 	github.com/shopspring/decimal v1.4.0 // indirect
 	github.com/simplereach/timeutils v1.2.0 // indirect
@@ -86,7 +86,7 @@ require (
 	golang.org/x/net v0.48.0 // indirect
 	golang.org/x/oauth2 v0.25.0 // indirect
 	golang.org/x/sync v0.19.0 // indirect
-	golang.org/x/sys v0.39.0 // indirect
+	golang.org/x/sys v0.49.0 // indirect
 	golang.org/x/text v0.32.0 // indirect
 	golang.org/x/time v0.12.0 // indirect
 	google.golang.org/api v0.215.0 // indirect
